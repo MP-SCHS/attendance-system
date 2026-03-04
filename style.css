@@ -1,6 +1,6 @@
 body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background-color: #f4f4f4; 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #4a0404; /* Dark Maroon Background */
     display: flex; 
     justify-content: center; 
     align-items: center; 
@@ -9,38 +9,43 @@ body {
 }
 
 .card { 
-    background: white; 
+    background: #ffffff; 
     padding: 40px; 
     border-radius: 20px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
     text-align: center; 
-    border-top: 8px solid #ce1126; 
-    width: 350px;
+    border-top: 10px solid #ce1126; /* Bright Red Top Border */
+    width: 380px;
 }
 
-h1 { color: #ce1126; margin-bottom: 20px; }
+h1 { color: #4a0404; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
 button { 
-    padding: 15px 30px; 
-    font-size: 16px; 
-    background: #ce1126; 
+    padding: 18px; 
+    font-size: 18px; 
+    font-weight: bold;
+    background: #ce1126; /* Red Button */
     color: white; 
     border: none; 
     border-radius: 8px; 
     cursor: pointer; 
-    transition: 0.3s; 
+    transition: transform 0.2s, background 0.2s; 
     width: 100%;
+    box-shadow: 0 4px 0 #8b0000;
 }
 
-button:hover { background: #a00d1e; }
+button:active { transform: translateY(3px); box-shadow: 0 1px 0 #8b0000; }
 
 #lastID { 
-    font-size: 28px; 
-    font-family: monospace; 
-    background: #eee; 
-    padding: 10px; 
-    border-radius: 5px; 
-    margin: 10px 0;
+    font-size: 24px; 
+    font-family: 'Courier New', monospace; 
+    background: #fdf2f2; 
+    color: #ce1126;
+    padding: 15px; 
+    border: 2px dashed #ce1126;
+    border-radius: 10px; 
+    margin: 15px 0;
 }
 
-#serverMsg { font-weight: bold; color: #2ecc71; margin-top: 15px; }
+#status { font-weight: bold; color: #4a0404; }
+#serverMsg { font-weight: bold; color: #27ae60; margin-top: 15px; min-height: 20px; }
