@@ -5,21 +5,19 @@ const statusSpn = document.getElementById('status');
 const lastIDSpn = document.getElementById('lastID');
 const serverMsg = document.getElementById('serverMsg');
 
-let port; // Global variable to keep the connection alive
+let port; 
 
 connectBtn.addEventListener('click', async () => {
     try {
-        // 1. Request and open the Serial Port
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         
         statusSpn.innerText = "CONNECTED";
         statusSpn.style.color = "green";
-        connectBtn.innerText = "LISTENING FOR SCANS...";
+        connectBtn.innerText = "LISTENING...";
         connectBtn.style.opacity = "0.5";
-        connectBtn.disabled = true; // Disable button after connection
+        connectBtn.disabled = true;
 
-        // 2. Setup the reader to listen to Arduino
         const textDecoder = new TextDecoderStream();
         port.readable.pipeTo(textDecoder.writable);
         const reader = textDecoder.readable.getReader();
@@ -29,49 +27,52 @@ connectBtn.addEventListener('click', async () => {
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-
             buffer += value;
 
-            // 3. Process data when a full line (newline) arrives
             if (buffer.includes("\n")) {
-                const rawData = buffer.trim(); // Format: "ID,MODE"
+                const rawData = buffer.trim(); 
                 buffer = "";
 
                 if (rawData.includes(",")) {
                     const [tagID, mode] = rawData.split(",");
-                    
                     lastIDSpn.innerText = tagID;
-                    serverMsg.innerText = "Processing Scan...";
+                    serverMsg.innerText = "Uploading to Google Sheets...";
 
-                    // 4. Construct the Google Sheets URL
                     const finalUrl = `${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${mode}`;
 
-                    // 5. Send data to Google Sheets
+                    // Send to Google
                     fetch(finalUrl, { mode: 'no-cors' })
                         .then(async () => {
-                            serverMsg.innerText = `✅ Logged ${tagID} as ${mode}`;
+                            serverMsg.innerText = `✅ Success: ${tagID} marked ${mode}`;
                             
-                            // --- HANDSHAKE: Send 'K' to unlock the Arduino ---
-                            if (port.writable) {
-                                const writer = port.writable.getWriter();
-                                const data = new TextEncoder().encode("K");
-                                await writer.write(data);
-                                writer.releaseLock(); // Important: Release so next scan can use it
-                            }
-                            
-                            // Clear message after 3 seconds
-                            setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+                            // Small delay to let Arduino finish its "Deep" beep
+                            setTimeout(async () => {
+                                try {
+                                    if (port.writable) {
+                                        const writer = port.writable.getWriter();
+                                        const signal = new TextEncoder().encode("K");
+                                        await writer.write(signal);
+                                        writer.releaseLock();
+                                        console.log("Handshake 'K' sent to Arduino");
+                                    }
+                                } catch (err) {
+                                    console.error("Buzzer signal failed:", err);
+                                }
+                            }, 500);
+
+                            // Clear UI message
+                            setTimeout(() => { serverMsg.innerText = ""; }, 4000);
                         })
                         .catch(err => {
-                            serverMsg.innerText = "❌ Sync Error";
-                            console.error("Fetch Error:", err);
+                            serverMsg.innerText = "❌ Network Error";
+                            console.error(err);
                         });
                 }
             }
         }
     } catch (err) {
-        console.error("Serial Error:", err);
-        statusSpn.innerText = "Connection Failed. Use HTTPS!";
+        console.error(err);
+        statusSpn.innerText = "Connection Failed!";
         statusSpn.style.color = "red";
     }
 });
