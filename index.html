@@ -2,24 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salpointe Attendance</title>
+    <title>Salpointe Attendance System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>Salpointe Attendance</h1>
-            <button id="connectBtn">CONNECT ARDUINO</button>
-            <p>Status: <span id="status">Waiting...</span></p>
+            
+            <button id="connectBtn">1. CONNECT ARDUINO</button>
+            
+            <p>Status: <span id="status">Waiting for connection...</span></p>
             <hr>
+            
             <div class="display-box">
-                <h2>Last ID Scanned:</h2>
-                <span id="lastID">---</span>
+                <h2>Last Scan:</h2>
+                <div id="lastID">------</div>
+                <div id="studentName" style="font-size: 1.2em; color: #ce1126; font-weight: bold;"></div>
             </div>
+            
             <p id="serverMsg"></p>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
