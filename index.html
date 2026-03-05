@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salpointe Attendance</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
     <nav class="tabs">
-        <button class="tab-btn active" onclick="showTab('log')">Log Attendance</button>
-        <button class="tab-btn" onclick="showTab('status-tab')">Student Status</button>
+        <button class="tab-btn active" onclick="showTab(event, 'log')">Log Attendance</button>
+        <button class="tab-btn" onclick="showTab(event, 'status-tab')">Student Status</button>
     </nav>
 
     <div class="container">
@@ -17,10 +18,9 @@
             <div class="card">
                 <h1>Log Attendance</h1>
                 <button id="connectBtn">CONNECT ARDUINO</button>
-                <p>Status: <span id="status">Disconnected</span></p>
-                <hr>
+                <p class="connection-status">System: <span id="status">Disconnected</span></p>
                 <div class="display-box">
-                    <h2>Last Scan:</h2>
+                    <p class="label">Last Scan</p>
                     <div id="lastID">------</div>
                 </div>
                 <p id="serverMsg"></p>
@@ -29,18 +29,20 @@
 
         <section id="status-tab" class="tab-content">
             <div class="card wide-card">
-                <h1>Current Status</h1>
-                <table id="statusTable">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>ID</th>
-                            <th>Current State</th>
-                        </tr>
-                    </thead>
-                    <tbody id="statusBody">
-                        </tbody>
-                </table>
+                <h1>Student Status</h1>
+                <div class="table-container">
+                    <table id="statusTable">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>ID</th>
+                                <th>State</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusBody">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </div>
