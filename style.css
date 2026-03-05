@@ -1,128 +1,51 @@
-/* Palette Variables */
-:root {
-    --crimson: #8C001A;
-    --scarlet: #DE383E;
-    --saffron: #F0BC00;
-    --gold: #FFCA3A;
-    --black: #080708;
-    --white: #FFFFFF;
-}
-
 body { 
-    font-family: 'Roboto', sans-serif; 
-    background-color: var(--black); 
-    color: var(--white);
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #4a0404; /* Dark Maroon Background */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
     margin: 0; 
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
 }
 
-/* Navigation Bar */
-.tabs {
-    display: flex;
-    justify-content: center;
-    background: var(--black);
-    padding: 20px 0;
-    border-bottom: 3px solid var(--crimson);
-    gap: 15px;
-}
-
-.tab-btn {
-    background: transparent;
-    border: 2px solid var(--saffron);
-    color: var(--saffron);
-    padding: 10px 25px;
-    font-weight: 700;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    width: auto;
-}
-
-.tab-btn.active {
-    background: var(--saffron);
-    color: var(--black);
-}
-
-.tab-btn:hover {
-    background: var(--gold);
-    color: var(--black);
-    border-color: var(--gold);
-}
-
-/* Container & Sections */
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    padding: 20px;
-}
-
-.tab-content { display: none; width: 100%; max-width: 500px; }
-.tab-content.active { display: flex; justify-content: center; }
-
-/* The Main Card */
 .card { 
-    background: var(--white); 
+    background: #cfa621; 
     padding: 40px; 
-    border-radius: 12px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
     text-align: center; 
-    border-bottom: 8px solid var(--crimson); 
+    border-top: 10px solid #ce1126; /* Bright Red Top Border #ce1126  dark maroon is #3b0303*/
+    width: 380px;
+}
+
+h1 { color: #4a0404; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+button { 
+    padding: 18px; 
+    font-size: 18px; 
+    font-weight: bold;
+    background: #4a0404; /* Red Button */
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: transform 0.2s, background 0.2s; 
     width: 100%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    color: var(--black);
+    box-shadow: 0 4px 0 #8b0000;
 }
 
-.wide-card { max-width: 700px; }
-
-h1 { 
-    color: var(--crimson); 
-    margin-top: 0; 
-    font-weight: 700; 
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Connect Button */
-#connectBtn { 
-    background: var(--crimson); 
-    color: var(--white); 
-    padding: 15px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 6px;
-    margin: 20px 0;
-    width: 100%;
-    cursor: pointer;
-    box-shadow: 0 4px var(--black);
-}
-
-#connectBtn:active { transform: translateY(2px); box-shadow: 0 2px var(--black); }
-
-/* Scan Display */
-.display-box {
-    background: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.label { font-size: 0.8em; color: #666; text-transform: uppercase; margin: 0; }
+button:active { transform: translateY(3px); box-shadow: 0 1px 0 #8b0000; }
 
 #lastID { 
-    font-size: 2em; 
-    font-weight: 700; 
-    color: var(--crimson);
+    font-size: 24px; 
+    font-family: 'Courier New', monospace; 
+    background: #fdf2f2; 
+    color: #ce1126;
+    padding: 15px; 
+    border: 2px dashed #ce1126;
+    border-radius: 10px; 
+    margin: 15px 0;
 }
 
-/* Table Styles */
-.table-container { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th { background: var(--crimson); color: var(--white); padding: 12px; text-align: left; }
-td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
-
-.status-here { color: #1b5e20; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
-.status-out { color: #b71c1c; font-weight: 700; background: #ffebee; padding: 4px 8px; border-radius: 4px; }
+#status { font-weight: bold; color: #4a0404; }
+#serverMsg { font-weight: bold; color: #27ae60; margin-top: 15px; min-height: 20px; }
