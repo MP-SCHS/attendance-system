@@ -9,7 +9,7 @@ body {
 }
 
 .card { 
-    background: #ffffff; 
+    background: #cfa621; 
     padding: 40px; 
     border-radius: 20px; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
@@ -24,7 +24,7 @@ button {
     padding: 18px; 
     font-size: 18px; 
     font-weight: bold;
-    background: #cfa621; /* Red Button */
+    background: #4a0404; /* Red Button */
     color: white; 
     border: none; 
     border-radius: 8px; 
