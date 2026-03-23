@@ -1,8 +1,8 @@
 const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxshlkitd9gapxoN6gdkguZp8diyy1Mo8I_hNwWRXScMvQooxv_IuEl6vFpFyhYjvBz/exec";
 
 const studentNames = {
-    "82 6D A1 04": "Madden (Blue)",
-    "7B B8 D7 05": "Jay (White)"
+    "82 6D A1 04": "Madden Pucci",
+    "7B B8 D7 05": "Jay Slavin"
 };
 
 let attendanceTracker = {};
