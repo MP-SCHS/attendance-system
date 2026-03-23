@@ -7,6 +7,7 @@ const studentNames = {
 
 let attendanceTracker = {};
 let port; 
+let keepReading = true;
 
 const connectBtn = document.getElementById('connectBtn');
 const statusSpn = document.getElementById('status');
@@ -14,8 +15,7 @@ const lastIDSpn = document.getElementById('lastID');
 const serverMsg = document.getElementById('serverMsg');
 const statusBody = document.getElementById('statusBody');
 
-// --- TAB LOGIC ---
-// This is now global so it works even if other parts of the script fail
+// --- TAB LOGIC (STAYS ACTIVE) ---
 window.showTab = function(event, tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -37,80 +37,88 @@ function updateStatusTable() {
     }
 }
 
-// --- MAIN SERIAL LOGIC ---
+// --- ARDUINO COMMUNICATION ---
+async function writeToArduino(message) {
+    if (port && port.writable) {
+        const writer = port.writable.getWriter();
+        try {
+            await writer.write(new TextEncoder().encode(message));
+            console.log("Sent to Arduino:", message.trim());
+        } finally {
+            writer.releaseLock(); // CRITICAL: Always unlock so reading can continue
+        }
+    }
+}
+
 connectBtn.addEventListener('click', async () => {
     try {
-        console.log("Attempting to connect to Serial Port...");
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         
         statusSpn.innerText = "ONLINE";
         statusSpn.style.color = "#1b5e20";
         connectBtn.innerText = "ARDUINO ACTIVE";
-        connectBtn.style.background = "#080708";
         connectBtn.disabled = true;
 
-        const textDecoder = new TextDecoderStream();
-        port.readable.pipeTo(textDecoder.writable);
-        const reader = textDecoder.readable.getReader();
+        // Start the reading loop in the background
+        readLoop(); 
 
-        let buffer = "";
-        
-        console.log("Connection successful. Listening for data...");
+    } catch (err) {
+        console.error("Connection error:", err);
+        alert("Could not connect to Serial Port.");
+    }
+});
 
-        while (true) {
+async function readLoop() {
+    const textDecoder = new TextDecoderStream();
+    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    const reader = textDecoder.readable.getReader();
+
+    let buffer = "";
+
+    try {
+        while (keepReading) {
             const { value, done } = await reader.read();
-            if (done) {
-                console.log("Reader closed.");
-                reader.releaseLock();
-                break;
-            }
+            if (done) break;
             
             buffer += value;
 
             if (buffer.includes("\n")) {
-                const lines = buffer.split("\n");
-                // The last element might be an incomplete line, keep it in buffer
-                buffer = lines.pop(); 
+                let lines = buffer.split("\n");
+                buffer = lines.pop(); // Keep partial line in buffer
 
-                for (let rawData of lines) {
-                    rawData = rawData.trim();
+                for (let line of lines) {
+                    let rawData = line.trim();
                     if (!rawData || !rawData.includes(",")) continue;
 
-                    console.log("Received from Arduino:", rawData);
+                    console.log("Arduino says:", rawData);
 
                     const [tagID, strMode, outModeStr] = rawData.split(",");
                     const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
 
-                    attendanceTracker[tagID] = {
-                        location: strMode,
-                        isOut: isOut
-                    };
-
+                    // Update tracking & UI
+                    attendanceTracker[tagID] = { location: strMode, isOut: isOut };
                     lastIDSpn.innerText = tagID;
                     updateStatusTable();
 
-                    // Send to Google
+                    // Network Log
                     fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
                     serverMsg.innerText = `Synced: ${strMode}`;
 
-                    // Talk back to Arduino
+                    // Response Logic
                     const name = studentNames[tagID] || "";
-                    const responseToArduino = name ? `>${name}\n` : "K\n";
-
-                    if (port.writable) {
-                        const writer = port.writable.getWriter();
-                        await writer.write(new TextEncoder().encode(responseToArduino));
-                        writer.releaseLock();
-                        console.log("Sent back to LCD:", responseToArduino);
-                    }
+                    const response = name ? `>${name}\n` : "K\n";
+                    
+                    // We call this without 'await' to keep the loop moving
+                    writeToArduino(response);
 
                     setTimeout(() => { serverMsg.innerText = ""; }, 3000);
                 }
             }
         }
-    } catch (err) { 
-        console.error("Critical Serial Error:", err);
-        alert("Serial Connection Failed: " + err.message);
+    } catch (err) {
+        console.error("Read error:", err);
+    } finally {
+        reader.releaseLock();
     }
-});
+}
