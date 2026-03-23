@@ -37,7 +37,7 @@ function updateStatusTable() {
     }
 }
 
-connectBtn.addEventListener('click', async () => {
+/*connectBtn.addEventListener('click', async () => {
     try {
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
@@ -82,4 +82,63 @@ connectBtn.addEventListener('click', async () => {
             }
         }
     } catch (err) { console.error(err); }
+});*/
+connectBtn.addEventListener('click', async () => {
+    try {
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 9600 });
+        statusSpn.innerText = "ONLINE";
+        statusSpn.style.color = "#1b5e20";
+        connectBtn.innerText = "ARDUINO ACTIVE";
+        connectBtn.style.background = "#080708";
+        connectBtn.disabled = true;
+
+        const textDecoder = new TextDecoderStream();
+        port.readable.pipeTo(textDecoder.writable);
+        const reader = textDecoder.readable.getReader();
+
+        let buffer = "";
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += value;
+
+            if (buffer.includes("\n")) {
+                const rawData = buffer.trim(); 
+                buffer = "";
+                
+                if (rawData.includes(",")) {
+                    const [tagID, mode] = rawData.split(",");
+                    
+                    // 1. UI Updates
+                    lastIDSpn.innerText = tagID;
+                    attendanceTracker[tagID] = mode;
+                    updateStatusTable();
+
+                    // 2. Lookup Name for the LCD
+                    // If name exists, send ">Name", otherwise send "K" to unlock
+                    const name = studentNames[tagID] || "";
+                    const responseToArduino = name ? `>${name}\n` : "K\n";
+
+                    // 3. Send to Google Sheets
+                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${mode}`, { mode: 'no-cors' })
+                    .then(async () => {
+                        serverMsg.innerText = `Synced: ${mode}`;
+                        
+                        // 4. TALK BACK TO ARDUINO
+                        // We send the name (or K) back so the LCD updates
+                        if (port.writable) {
+                            const writer = port.writable.getWriter();
+                            const encoder = new TextEncoder();
+                            await writer.write(encoder.encode(responseToArduino));
+                            writer.releaseLock();
+                            console.log("Sent to Arduino:", responseToArduino);
+                        }
+
+                        setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+                    });
+                }
+            }
+        }
+    } catch (err) { console.error("Serial Error:", err); }
 });
