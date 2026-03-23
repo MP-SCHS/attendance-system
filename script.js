@@ -14,15 +14,15 @@ const lastIDSpn = document.getElementById('lastID');
 const serverMsg = document.getElementById('serverMsg');
 const statusBody = document.getElementById('statusBody');
 
-// --- UPDATED TAB LOGIC ---
+// --- TAB LOGIC ---
 function showTab(event, tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
 }
 
+// --- TABLE UPDATE LOGIC ---
 function updateStatusTable() {
     statusBody.innerHTML = ""; 
     for (const [id, data] of Object.entries(attendanceTracker)) {
@@ -40,56 +40,12 @@ function updateStatusTable() {
     }
 }
 
-/*connectBtn.addEventListener('click', async () => {
-    try {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 9600 });
-        statusSpn.innerText = "ONLINE";
-        statusSpn.style.color = "#1b5e20";
-        connectBtn.innerText = "ARDUINO ACTIVE";
-        connectBtn.style.background = "#080708";
-        connectBtn.disabled = true;
-
-        const textDecoder = new TextDecoderStream();
-        port.readable.pipeTo(textDecoder.writable);
-        const reader = textDecoder.readable.getReader();
-
-        let buffer = "";
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += value;
-
-            if (buffer.includes("\n")) {
-                const rawData = buffer.trim(); 
-                buffer = "";
-                if (rawData.includes(",")) {
-                    const [tagID, mode] = rawData.split(",");
-                    lastIDSpn.innerText = tagID;
-                    attendanceTracker[tagID] = mode;
-                    updateStatusTable();
-
-                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${mode}`, { mode: 'no-cors' })
-                    .then(async () => {
-                        serverMsg.innerText = `Synced: ${mode}`;
-                        setTimeout(async () => {
-                            if (port.writable) {
-                                const writer = port.writable.getWriter();
-                                await writer.write(new TextEncoder().encode("K"));
-                                writer.releaseLock();
-                            }
-                        }, 600);
-                        setTimeout(() => { serverMsg.innerText = ""; }, 3000);
-                    });
-                }
-            }
-        }
-    } catch (err) { console.error(err); }
-});*/
+// --- SERIAL CONNECTION ---
 connectBtn.addEventListener('click', async () => {
     try {
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
+        
         statusSpn.innerText = "ONLINE";
         statusSpn.style.color = "#1b5e20";
         connectBtn.innerText = "ARDUINO ACTIVE";
@@ -101,81 +57,49 @@ connectBtn.addEventListener('click', async () => {
         const reader = textDecoder.readable.getReader();
 
         let buffer = "";
-        while (true) {
-            // ... inside the while (true) loop of your connectBtn listener ...
-
-if (buffer.includes("\n")) {
-    const rawData = buffer.trim(); 
-    buffer = "";
-    
-    if (rawData.includes(",")) {
-        // 1. Split the three pieces of data
-        const [tagID, strMode, outModeStr] = rawData.split(",");
         
-        // Convert the string "1" or "true" from Arduino into a real JS boolean
-        const isOut = outModeStr.toLowerCase() === "1" || outModeStr.toLowerCase() === "true";
-
-        // 2. Update the tracking object with a small object instead of just a string
-        attendanceTracker[tagID] = {
-            location: strMode,
-            isOut: isOut
-        };
-
-        // 3. Update UI
-        lastIDSpn.innerText = tagID;
-        updateStatusTable();
-
-        // 4. Send to Google Sheets (Passing the specific destination)
-        fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' })
-        .then(async () => {
-            serverMsg.innerText = `Synced: ${strMode}`;
-            
-            // 5. Look up Name and Talk Back to Arduino
-            const name = studentNames[tagID] || "";
-            const responseToArduino = name ? `>${name}\n` : "K\n";
-
-            if (port.writable) {
-                const writer = port.writable.getWriter();
-                await writer.write(new TextEncoder().encode(responseToArduino));
-                writer.releaseLock();
-            }
-
-            setTimeout(() => { serverMsg.innerText = ""; }, 3000);
-        });
-    }
-}
-            /*const { value, done } = await reader.read();
+        while (true) {
+            // CRITICAL FIX: We must actually read the data here
+            const { value, done } = await reader.read();
             if (done) break;
+            
             buffer += value;
 
+            // Check if we have a full line of data
             if (buffer.includes("\n")) {
                 const rawData = buffer.trim(); 
                 buffer = "";
                 
                 if (rawData.includes(",")) {
-                    const [tagID, mode] = rawData.split(",");
+                    // Split the three pieces: ID, Destination Name, True/False
+                    const [tagID, strMode, outModeStr] = rawData.split(",");
                     
-                    // 1. UI Updates
+                    // Convert "1" or "true" to a real boolean
+                    const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
+
+                    // Update local tracker
+                    attendanceTracker[tagID] = {
+                        location: strMode,
+                        isOut: isOut
+                    };
+
+                    // Update UI
                     lastIDSpn.innerText = tagID;
-                    attendanceTracker[tagID] = mode;
                     updateStatusTable();
 
-                    // 2. Lookup Name for the LCD
-                    // If name exists, send ">Name", otherwise send "K" to unlock
-                    const name = studentNames[tagID] || "";
-                    const responseToArduino = name ? `>${name}\n` : "K\n";
-
-                    // 3. Send to Google Sheets
-                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${mode}`, { mode: 'no-cors' })
+                    // Send to Google Sheets
+                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' })
                     .then(async () => {
-                        serverMsg.innerText = `Synced: ${mode}`;
+                        serverMsg.innerText = `Synced: ${strMode}`;
                         
-                        // 4. TALK BACK TO ARDUINO
-                        // We send the name (or K) back so the LCD updates
+                        // Look up Student Name
+                        const name = studentNames[tagID] || "";
+                        const responseToArduino = name ? `>${name}\n` : "K\n";
+
+                        // Send response back to Arduino LCD
                         if (port.writable) {
                             const writer = port.writable.getWriter();
-                            const encoder = new TextEncoder();
-                            await writer.write(encoder.encode(responseToArduino));
+                            await writer.write(new TextEncoder().encode(responseToArduino));
                             writer.releaseLock();
                             console.log("Sent to Arduino:", responseToArduino);
                         }
@@ -184,6 +108,10 @@ if (buffer.includes("\n")) {
                     });
                 }
             }
-        */}
-    } catch (err) { console.error("Serial Error:", err); }
+        }
+    } catch (err) { 
+        console.error("Serial Error:", err);
+        statusSpn.innerText = "ERROR";
+        statusSpn.style.color = "red";
+    }
 });
