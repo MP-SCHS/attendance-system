@@ -25,13 +25,16 @@ function showTab(event, tabId) {
 
 function updateStatusTable() {
     statusBody.innerHTML = ""; 
-    for (const [id, state] of Object.entries(attendanceTracker)) {
+    for (const [id, data] of Object.entries(attendanceTracker)) {
         const name = studentNames[id] || "Unknown";
-        const stateClass = state === 'HERE' ? 'status-here' : 'status-out';
+        
+        // Green if entering (isOut is false), Red if leaving (isOut is true)
+        const stateClass = data.isOut ? 'status-out' : 'status-here'; 
+        
         const row = `<tr>
             <td>${name}</td>
             <td>${id}</td>
-            <td><span class="${stateClass}">${state}</span></td>
+            <td><span class="${stateClass}">${data.location}</span></td>
         </tr>`;
         statusBody.innerHTML += row;
     }
@@ -99,7 +102,49 @@ connectBtn.addEventListener('click', async () => {
 
         let buffer = "";
         while (true) {
-            const { value, done } = await reader.read();
+            // ... inside the while (true) loop of your connectBtn listener ...
+
+if (buffer.includes("\n")) {
+    const rawData = buffer.trim(); 
+    buffer = "";
+    
+    if (rawData.includes(",")) {
+        // 1. Split the three pieces of data
+        const [tagID, strMode, outModeStr] = rawData.split(",");
+        
+        // Convert the string "1" or "true" from Arduino into a real JS boolean
+        const isOut = outModeStr.toLowerCase() === "1" || outModeStr.toLowerCase() === "true";
+
+        // 2. Update the tracking object with a small object instead of just a string
+        attendanceTracker[tagID] = {
+            location: strMode,
+            isOut: isOut
+        };
+
+        // 3. Update UI
+        lastIDSpn.innerText = tagID;
+        updateStatusTable();
+
+        // 4. Send to Google Sheets (Passing the specific destination)
+        fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' })
+        .then(async () => {
+            serverMsg.innerText = `Synced: ${strMode}`;
+            
+            // 5. Look up Name and Talk Back to Arduino
+            const name = studentNames[tagID] || "";
+            const responseToArduino = name ? `>${name}\n` : "K\n";
+
+            if (port.writable) {
+                const writer = port.writable.getWriter();
+                await writer.write(new TextEncoder().encode(responseToArduino));
+                writer.releaseLock();
+            }
+
+            setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+        });
+    }
+}
+            /*const { value, done } = await reader.read();
             if (done) break;
             buffer += value;
 
@@ -139,6 +184,6 @@ connectBtn.addEventListener('click', async () => {
                     });
                 }
             }
-        }
+        */}
     } catch (err) { console.error("Serial Error:", err); }
 });
