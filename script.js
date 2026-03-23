@@ -15,22 +15,19 @@ const serverMsg = document.getElementById('serverMsg');
 const statusBody = document.getElementById('statusBody');
 
 // --- TAB LOGIC ---
-function showTab(event, tabId) {
+// This is now global so it works even if other parts of the script fail
+window.showTab = function(event, tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
-}
+};
 
-// --- TABLE UPDATE LOGIC ---
 function updateStatusTable() {
     statusBody.innerHTML = ""; 
     for (const [id, data] of Object.entries(attendanceTracker)) {
         const name = studentNames[id] || "Unknown";
-        
-        // Green if entering (isOut is false), Red if leaving (isOut is true)
         const stateClass = data.isOut ? 'status-out' : 'status-here'; 
-        
         const row = `<tr>
             <td>${name}</td>
             <td>${id}</td>
@@ -40,9 +37,10 @@ function updateStatusTable() {
     }
 }
 
-// --- SERIAL CONNECTION ---
+// --- MAIN SERIAL LOGIC ---
 connectBtn.addEventListener('click', async () => {
     try {
+        console.log("Attempting to connect to Serial Port...");
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         
@@ -58,60 +56,61 @@ connectBtn.addEventListener('click', async () => {
 
         let buffer = "";
         
+        console.log("Connection successful. Listening for data...");
+
         while (true) {
-            // CRITICAL FIX: We must actually read the data here
             const { value, done } = await reader.read();
-            if (done) break;
+            if (done) {
+                console.log("Reader closed.");
+                reader.releaseLock();
+                break;
+            }
             
             buffer += value;
 
-            // Check if we have a full line of data
             if (buffer.includes("\n")) {
-                const rawData = buffer.trim(); 
-                buffer = "";
-                
-                if (rawData.includes(",")) {
-                    // Split the three pieces: ID, Destination Name, True/False
+                const lines = buffer.split("\n");
+                // The last element might be an incomplete line, keep it in buffer
+                buffer = lines.pop(); 
+
+                for (let rawData of lines) {
+                    rawData = rawData.trim();
+                    if (!rawData || !rawData.includes(",")) continue;
+
+                    console.log("Received from Arduino:", rawData);
+
                     const [tagID, strMode, outModeStr] = rawData.split(",");
-                    
-                    // Convert "1" or "true" to a real boolean
                     const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
 
-                    // Update local tracker
                     attendanceTracker[tagID] = {
                         location: strMode,
                         isOut: isOut
                     };
 
-                    // Update UI
                     lastIDSpn.innerText = tagID;
                     updateStatusTable();
 
-                    // Send to Google Sheets
-                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' })
-                    .then(async () => {
-                        serverMsg.innerText = `Synced: ${strMode}`;
-                        
-                        // Look up Student Name
-                        const name = studentNames[tagID] || "";
-                        const responseToArduino = name ? `>${name}\n` : "K\n";
+                    // Send to Google
+                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
+                    serverMsg.innerText = `Synced: ${strMode}`;
 
-                        // Send response back to Arduino LCD
-                        if (port.writable) {
-                            const writer = port.writable.getWriter();
-                            await writer.write(new TextEncoder().encode(responseToArduino));
-                            writer.releaseLock();
-                            console.log("Sent to Arduino:", responseToArduino);
-                        }
+                    // Talk back to Arduino
+                    const name = studentNames[tagID] || "";
+                    const responseToArduino = name ? `>${name}\n` : "K\n";
 
-                        setTimeout(() => { serverMsg.innerText = ""; }, 3000);
-                    });
+                    if (port.writable) {
+                        const writer = port.writable.getWriter();
+                        await writer.write(new TextEncoder().encode(responseToArduino));
+                        writer.releaseLock();
+                        console.log("Sent back to LCD:", responseToArduino);
+                    }
+
+                    setTimeout(() => { serverMsg.innerText = ""; }, 3000);
                 }
             }
         }
     } catch (err) { 
-        console.error("Serial Error:", err);
-        statusSpn.innerText = "ERROR";
-        statusSpn.style.color = "red";
+        console.error("Critical Serial Error:", err);
+        alert("Serial Connection Failed: " + err.message);
     }
 });
