@@ -70,55 +70,37 @@ connectBtn.addEventListener('click', async () => {
 });
 
 async function readLoop() {
-    const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-    const reader = textDecoder.readable.getReader();
+    // --- Inside readLoop(), find the split logic ---
+for (let line of lines) {
+    let rawData = line.trim();
+    if (!rawData || !rawData.includes(",")) continue;
 
-    let buffer = "";
+    console.log("Arduino says:", rawData);
 
-    try {
-        while (keepReading) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            buffer += value;
+    // 1. Split the 4 items coming from Arduino
+    // Order: FullName, NumberId, Mode, OutMode
+    const [scannedName, scannedID, strMode, outModeStr] = rawData.split(",");
+    
+    const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
 
-            if (buffer.includes("\n")) {
-                let lines = buffer.split("\n");
-                buffer = lines.pop(); // Keep partial line in buffer
+    // 2. Update tracking & UI using the data directly from the card
+    // We use scannedID as the 'key' for the table
+    attendanceTracker[scannedID] = { 
+        name: scannedName, 
+        location: strMode, 
+        isOut: isOut 
+    };
 
-                for (let line of lines) {
-                    let rawData = line.trim();
-                    if (!rawData || !rawData.includes(",")) continue;
+    lastIDSpn.innerText = scannedName; // Show the name instead of Hex
+    updateStatusTable();
 
-                    console.log("Arduino says:", rawData);
+    // 3. Network Log (Sending to Google Sheets)
+    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(scannedID)}&name=${encodeURIComponent(scannedName)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
+    serverMsg.innerText = `Synced: ${scannedName}`;
 
-                    const [tagID, strMode, outModeStr] = rawData.split(",");
-                    const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
+    // 4. Response Logic (Just send "K" to unlock, card already has the name)
+    writeToArduino("K\n");
 
-                    // Update tracking & UI
-                    attendanceTracker[tagID] = { location: strMode, isOut: isOut };
-                    lastIDSpn.innerText = tagID;
-                    updateStatusTable();
-
-                    // Network Log
-                    fetch(`${GOOGLE_URL}?id=${encodeURIComponent(tagID)}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
-                    serverMsg.innerText = `Synced: ${strMode}`;
-
-                    // Response Logic
-                    const name = studentNames[tagID] || "";
-                    const response = name ? `>${name}\n` : "K\n";
-                    
-                    // We call this without 'await' to keep the loop moving
-                    writeToArduino(response);
-
-                    setTimeout(() => { serverMsg.innerText = ""; }, 3000);
-                }
-            }
-        }
-    } catch (err) {
-        console.error("Read error:", err);
-    } finally {
-        reader.releaseLock();
-    }
+    setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+}
 }
