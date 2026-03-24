@@ -63,46 +63,68 @@ connectBtn.addEventListener('click', async () => {
 });
 
 async function readLoop() {
-for (let line of lines) {
-                    // 1. Clean the line thoroughly
-                    let rawData = line.replace(/(\r\n|\n|\r)/gm, "").trim(); 
-                    if (!rawData || !rawData.includes(",")) continue;
+    while (port && port.readable && keepReading) {
+        const reader = port.readable.getReader();
+        try {
+            let buffer = ""; // This stays alive to catch fragments
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
 
-                    console.log("Cleaned Data:", rawData);
+                // 1. Decode the chunk and add to our buffer
+                const chunk = new TextDecoder().decode(value);
+                buffer += chunk;
 
-                    const parts = rawData.split(",");
-                    if (parts.length < 4) {
-                        console.error("Data missing parts! Expected 4, got:", parts);
-                        continue;
+                // 2. Check if we have at least one complete line
+                if (buffer.includes("\n")) {
+                    let lines = buffer.split("\n");
+                    
+                    // Keep the last (potentially incomplete) part in the buffer
+                    buffer = lines.pop(); 
+
+                    for (let line of lines) {
+                        let rawData = line.trim();
+                        if (!rawData || !rawData.includes(",")) continue;
+
+                        console.log("Valid Line Found:", rawData);
+
+                        // 3. Split and Clean
+                        const parts = rawData.split(",");
+                        if (parts.length >= 4) {
+                            const [scannedName, scannedID, strMode, outModeStr] = parts.map(p => p.trim());
+                            const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
+
+                            // 4. Update Tracking Object
+                            attendanceTracker[scannedID] = { 
+                                name: scannedName, 
+                                location: strMode, 
+                                isOut: isOut 
+                            };
+
+                            // 5. Trigger UI Updates
+                            lastIDSpn.innerText = scannedName;
+                            updateStatusTable();
+
+                            // 6. Network sync
+                            const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(scannedID)}&name=${encodeURIComponent(scannedName)}&mode=${encodeURIComponent(strMode)}&isOut=${isOut}`;
+                            fetch(fetchURL, { mode: 'no-cors' });
+                            
+                            serverMsg.innerText = `Synced: ${scannedName}`;
+
+                            // 7. Unlock Arduino
+                            writeToArduino("K\n");
+                            
+                            setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+                        } else {
+                            console.warn("Discarding incomplete CSV line:", rawData);
+                        }
                     }
-
-                    // 2. Destructure and trim each individual part
-                    let [scannedName, scannedID, strMode, outModeStr] = parts.map(p => p.trim());
-
-                    console.log("Parsed Name:", scannedName);
-                    console.log("Parsed ID:", scannedID);
-
-                    // 3. Robust Boolean Check
-                    const isOut = outModeStr.toLowerCase() === "true" || outModeStr === "1";
-
-                    // 4. Update the Object
-                    attendanceTracker[scannedID] = { 
-                        name: scannedName, 
-                        location: strMode, 
-                        isOut: isOut 
-                    };
-
-                    // 5. Force UI Update
-                    lastIDSpn.innerText = scannedName;
-                    updateStatusTable();
-
-                    // 6. Network Log
-                    const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(scannedID)}&name=${encodeURIComponent(scannedName)}&mode=${encodeURIComponent(strMode)}&isOut=${isOut}`;
-                    fetch(fetchURL, { mode: 'no-cors' })
-                        .then(() => { serverMsg.innerText = `Synced: ${scannedName}`; })
-                        .catch(err => { console.error("Fetch Error:", err); });
-
-                    writeToArduino("K\n");
-                    setTimeout(() => { serverMsg.innerText = ""; }, 3000);
                 }
+            }
+        } catch (err) {
+            console.error("Read error:", err);
+        } finally {
+            reader.releaseLock();
+        }
+    }
 }
