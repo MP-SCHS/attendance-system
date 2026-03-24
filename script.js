@@ -18,8 +18,8 @@ window.showTab = function(event, tabId) {
     event.currentTarget.classList.add('active');
 };
 
-// --- TABLE UPDATE LOGIC ---
 function updateStatusTable() {
+    console.log("Updating Table with:", attendanceTracker);
     statusBody.innerHTML = ""; 
     for (const [id, data] of Object.entries(attendanceTracker)) {
         const stateClass = data.isOut ? 'status-out' : 'status-here'; 
@@ -32,15 +32,11 @@ function updateStatusTable() {
     }
 }
 
-// --- ARDUINO COMMUNICATION ---
 async function writeToArduino(message) {
     if (port && port.writable) {
         const writer = port.writable.getWriter();
-        try {
-            await writer.write(new TextEncoder().encode(message));
-        } finally {
-            writer.releaseLock(); 
-        }
+        await writer.write(new TextEncoder().encode(message));
+        writer.releaseLock();
     }
 }
 
@@ -48,81 +44,80 @@ connectBtn.addEventListener('click', async () => {
     try {
         port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
-        
         statusSpn.innerText = "ONLINE";
-        statusSpn.style.color = "#1b5e20";
-        connectBtn.innerText = "ARDUINO ACTIVE";
-        connectBtn.disabled = true;
-
+        connectBtn.innerText = "CONNECTED";
         readLoop(); 
-
     } catch (err) {
         console.error("Connection error:", err);
-        alert("Could not connect to Serial Port. Ensure Serial Monitor is closed in Arduino IDE.");
     }
 });
 
 async function readLoop() {
+    const decoder = new TextDecoder();
+    let buffer = "";
+
     while (port && port.readable && keepReading) {
         const reader = port.readable.getReader();
         try {
-            let buffer = ""; // This stays alive to catch fragments
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
 
-                // 1. Decode the chunk and add to our buffer
-                const chunk = new TextDecoder().decode(value);
-                buffer += chunk;
+                buffer += decoder.decode(value, { stream: true });
 
-                // 2. Check if we have at least one complete line
                 if (buffer.includes("\n")) {
                     let lines = buffer.split("\n");
-                    
-                    // Keep the last (potentially incomplete) part in the buffer
                     buffer = lines.pop(); 
 
                     for (let line of lines) {
-                        let rawData = line.trim();
-                        if (!rawData || !rawData.includes(",")) continue;
+                        let cleanLine = line.trim();
+                        if (!cleanLine) continue;
+                        
+                        console.log("1. Received Line:", cleanLine);
 
-                        console.log("Valid Line Found:", rawData);
+                        if (!cleanLine.includes(",")) {
+                            console.warn("2. Line skipped (No commas found)");
+                            continue;
+                        }
 
-                        // 3. Split and Clean
-                        const parts = rawData.split(",");
+                        const parts = cleanLine.split(",");
+                        console.log("3. Parts split:", parts);
+
                         if (parts.length >= 4) {
-                            const [scannedName, scannedID, strMode, outModeStr] = parts.map(p => p.trim());
-                            const isOut = outModeStr.toLowerCase().includes("true") || outModeStr === "1";
+                            const [sName, sID, sMode, sOut] = parts.map(p => p.trim());
+                            
+                            // Check if the data actually exists
+                            if(!sName || !sID) {
+                                console.error("4. Error: Name or ID is blank!");
+                                continue;
+                            }
 
-                            // 4. Update Tracking Object
-                            attendanceTracker[scannedID] = { 
-                                name: scannedName, 
-                                location: strMode, 
-                                isOut: isOut 
+                            const outBool = sOut.toLowerCase().includes("true");
+
+                            // UPDATE DATA
+                            attendanceTracker[sID] = { 
+                                name: sName, 
+                                location: sMode, 
+                                isOut: outBool 
                             };
 
-                            // 5. Trigger UI Updates
-                            lastIDSpn.innerText = scannedName;
+                            // UPDATE UI
+                            lastIDSpn.innerText = sName;
                             updateStatusTable();
 
-                            // 6. Network sync
-                            const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(scannedID)}&name=${encodeURIComponent(scannedName)}&mode=${encodeURIComponent(strMode)}&isOut=${isOut}`;
-                            fetch(fetchURL, { mode: 'no-cors' });
+                            // SYNC
+                            fetch(`${GOOGLE_URL}?id=${encodeURIComponent(sID)}&name=${encodeURIComponent(sName)}&mode=${encodeURIComponent(sMode)}&isOut=${outBool}`, { mode: 'no-cors' });
                             
-                            serverMsg.innerText = `Synced: ${scannedName}`;
-
-                            // 7. Unlock Arduino
                             writeToArduino("K\n");
-                            
-                            setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+                            console.log("5. Success: UI Updated & Unlock Sent");
                         } else {
-                            console.warn("Discarding incomplete CSV line:", rawData);
+                            console.warn("4. Error: Line had less than 4 parts", parts.length);
                         }
                     }
                 }
             }
         } catch (err) {
-            console.error("Read error:", err);
+            console.error("READ ERROR:", err);
         } finally {
             reader.releaseLock();
         }
