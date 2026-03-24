@@ -1,4 +1,4 @@
-const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxO-yOtVzHRSnuQUgy_7_rytiJlxiFZSyQz5Fz8VyDB5OfC4t0iDf6ZEoB6Z5_D5qkC/exec";
+const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzFl4M2pyzkhUvrLex691-3fZ4yeb6_11BUTAKGLYX8-UgSWhLkDl-vDTe7ExncgX3-/exec";
 
 // This is now used as a fallback or for manual overrides
 let attendanceTracker = {};
