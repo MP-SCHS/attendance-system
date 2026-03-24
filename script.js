@@ -63,8 +63,46 @@ connectBtn.addEventListener('click', async () => {
 });
 
 async function readLoop() {
-    const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-    const reader = textDecoder.readable.getReader();
+for (let line of lines) {
+                    // 1. Clean the line thoroughly
+                    let rawData = line.replace(/(\r\n|\n|\r)/gm, "").trim(); 
+                    if (!rawData || !rawData.includes(",")) continue;
 
-    let
+                    console.log("Cleaned Data:", rawData);
+
+                    const parts = rawData.split(",");
+                    if (parts.length < 4) {
+                        console.error("Data missing parts! Expected 4, got:", parts);
+                        continue;
+                    }
+
+                    // 2. Destructure and trim each individual part
+                    let [scannedName, scannedID, strMode, outModeStr] = parts.map(p => p.trim());
+
+                    console.log("Parsed Name:", scannedName);
+                    console.log("Parsed ID:", scannedID);
+
+                    // 3. Robust Boolean Check
+                    const isOut = outModeStr.toLowerCase() === "true" || outModeStr === "1";
+
+                    // 4. Update the Object
+                    attendanceTracker[scannedID] = { 
+                        name: scannedName, 
+                        location: strMode, 
+                        isOut: isOut 
+                    };
+
+                    // 5. Force UI Update
+                    lastIDSpn.innerText = scannedName;
+                    updateStatusTable();
+
+                    // 6. Network Log
+                    const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(scannedID)}&name=${encodeURIComponent(scannedName)}&mode=${encodeURIComponent(strMode)}&isOut=${isOut}`;
+                    fetch(fetchURL, { mode: 'no-cors' })
+                        .then(() => { serverMsg.innerText = `Synced: ${scannedName}`; })
+                        .catch(err => { console.error("Fetch Error:", err); });
+
+                    writeToArduino("K\n");
+                    setTimeout(() => { serverMsg.innerText = ""; }, 3000);
+                }
+}
