@@ -26,7 +26,8 @@ window.showTab = function(event, tabId) {
 function updateStatusTable() {
     statusBody.innerHTML = ""; 
     for (const [id, data] of Object.entries(attendanceTracker)) {
-        const name = studentNames[id] || "Unknown";
+        // Use the name read from the card!
+        const name = data.name || "Unknown"; 
         const stateClass = data.isOut ? 'status-out' : 'status-here'; 
         const row = `<tr>
             <td>${name}</td>
