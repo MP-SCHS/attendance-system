@@ -6,6 +6,7 @@
     --gold: #FFCA3A;
     --black: #080708;
     --white: #FFFFFF;
+    --dark: #1f1f1f;
 }
 
 body { 
@@ -131,6 +132,8 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     background-color: white;
     border-radius: 12px;
     padding: 40px;
+    height: 500px;
+    width: 100%;
     }
 
     #manualTitle {
@@ -141,13 +144,19 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     color: var(--saffron);
     text-align: center;
 }
-#manualNameInput, #manualIdInput, #manualLocationSelector {
+#manualNameInput, #manualIdInput {
     color: var(--crimson);
-    height: 25px;
-    width: 150px;
+    height: 50px;
+    width: 300px;
     text-align: center;
-    background-color: var(--saffron);
+    background-color: var(--dark);
     accent-color: black;
+    ::placeholder {
+        color: var(--saffron);
+    }
+}
+#manualLocationSelector {
+
 }
 
 .table-select {
