@@ -132,17 +132,19 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     background-color: white;
     border-radius: 12px;
     padding: 40px;
-    height: 500px;
+    height: 300px;
     width: 100%;
     }
 
     #manualTitle {
         color:var(--crimson);
-
+        font-size: 50px;
+        text-align: center;
     }
 #manualSubTitle {
     color: var(--saffron);
     text-align: center;
+    font-size: 23px;
 }
 #manualNameInput, #manualIdInput {
     color: var(--crimson);
@@ -151,8 +153,10 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     text-align: center;
     background-color: var(--dark);
     accent-color: black;
+    border-radius: 30px;
     ::placeholder {
         color: var(--saffron);
+        font-size: 30px;
     }
 }
 #manualLocationSelector {
