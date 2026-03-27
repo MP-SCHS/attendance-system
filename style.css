@@ -132,3 +132,22 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     broder-radius: 8px;
     padding: 20px;
     }
+.table-select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* These classes will color the dropdown itself based on the status */
+.table-select.status-here {
+    background-color: #e8f5e9; /* Light green */
+    color: #2e7d32;
+}
+
+.table-select.status-out {
+    background-color: #ffebee; /* Light red */
+    color: #c62828;
+}
