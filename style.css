@@ -132,6 +132,15 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     border-radius: 8px;
     padding: 20px;
     }
+#manualSubTitle {
+    color: var(--saffron);
+}
+#manualNameInput, #manualIdInput, #manualLocationSelector {
+    color: var(--saffron);
+    height: 20px;
+    width: 50px;
+}
+
 .table-select {
     padding: 5px;
     border-radius: 4px;
