@@ -130,4 +130,5 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 #wbox {
     background-color: white;
     broder-radius: 8px;
+    padding: 20px;
     }
