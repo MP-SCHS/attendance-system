@@ -135,16 +135,19 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 
     #manualTitle {
         color:var(--crimson);
-        
+
     }
 #manualSubTitle {
     color: var(--saffron);
     text-align: center;
 }
 #manualNameInput, #manualIdInput, #manualLocationSelector {
-    color: var(--saffron);
-    height: 20px;
-    width: 50px;
+    color: var(--crimson);
+    height: 25px;
+    width: 150px;
+    text-align: center;
+    background-color: var(--saffron);
+    accent-color: black;
 }
 
 .table-select {
