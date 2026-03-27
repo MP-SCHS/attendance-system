@@ -121,3 +121,53 @@ async function readLoop() {
         reader.releaseLock();
     }
 }
+// 1. DOM Elements for Manual Entry
+const manualNameInput = document.getElementById('manualNameInput');
+const manualIdInput = document.getElementById('manualIdInput');
+const manualLocationSelect = document.getElementById('manualLocationSelect');
+const submitManualBtn = document.getElementById('submitManualEntry');
+
+// 2. The Click Event Handler
+submitManualBtn.addEventListener('click', () => {
+    const name = manualNameInput.value.trim();
+    const id = manualIdInput.value.trim();
+    const location = manualLocationSelect.value;
+
+    // Validation: Don't add if fields are empty
+    if (!name || !id) {
+        alert("Please enter both a Name and an ID.");
+        return;
+    }
+
+    // 3. Determine 'isOut' based on location
+    // In your system, "Enter" usually means they are back (false)
+    const isOut = (location !== "Enter");
+
+    // 4. Update the global object
+    // Reusing the same structure as your RFID scans
+    attendanceTracker[id] = { 
+        name: name, 
+        location: location, 
+        isOut: isOut 
+    };
+
+    // 5. Refresh the Table UI
+    // Since this function is already written, we just call it!
+    updateStatusTable();
+
+    // 6. Sync to Google Sheets
+    // Using the same URL format you used for RFID
+    const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&mode=${encodeURIComponent(location)}&isOut=${isOut}`;
+    
+    fetch(fetchURL, { mode: 'no-cors' })
+        .then(() => {
+            console.log("Manual entry synced to Google Sheets");
+            serverMsg.innerText = `Manual Sync: ${name}`;
+        })
+        .catch(err => console.error("Sheets Sync Error:", err));
+
+    // 7. Clear the inputs for the next entry
+    manualNameInput.value = "";
+    manualIdInput.value = "";
+    manualLocationSelect.selectedIndex = 0; // Reset to "Enter"
+});
