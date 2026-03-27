@@ -27,18 +27,54 @@ window.showTab = function(event, tabId) {
 };
 
 // --- UI UPDATE LOGIC ---
+// Define your locations in one place for easy editing
+const locations = ["Enter", "Bathroom", "Nurse", "Library", "Front Office", "Counselor"];
+
 function updateStatusTable() {
     statusBody.innerHTML = ""; 
     for (const [id, data] of Object.entries(attendanceTracker)) {
         const stateClass = data.isOut ? 'status-out' : 'status-here'; 
+        
+        // Generate the dropdown options dynamically
+        let optionsHTML = "";
+        locations.forEach(loc => {
+            // Check if this location matches the student's current status
+            const isSelected = (data.location === loc) ? "selected" : "";
+            optionsHTML += `<option value="${loc}" ${isSelected}>${loc}</option>`;
+        });
+
         const row = `<tr>
             <td>${data.name}</td>
             <td>${id}</td>
-            <td><span class="${stateClass}">${data.location}</span></td>
+            <td>
+                <select class="table-select ${stateClass}" onchange="manualStatusUpdate('${id}', this.value)">
+                    ${optionsHTML}
+                </select>
+            </td>
         </tr>`;
         statusBody.innerHTML += row;
     }
 }
+
+// Function to handle when a teacher changes the dropdown in the table
+window.manualStatusUpdate = function(id, newLocation) {
+    const student = attendanceTracker[id];
+    if (!student) return;
+
+    // 1. Update the local data
+    student.location = newLocation;
+    student.isOut = (newLocation !== "Enter");
+
+    // 2. Refresh the table to update the colors (In room vs Out of room)
+    updateStatusTable();
+
+    // 3. Sync the change to Google Sheets
+    const fetchURL = `${GOOGLE_URL}?id=${encodeURIComponent(id)}&name=${encodeURIComponent(student.name)}&mode=${encodeURIComponent(newLocation)}&isOut=${student.isOut}`;
+    
+    fetch(fetchURL, { mode: 'no-cors' })
+        .then(() => console.log(`Manual override: ${student.name} moved to ${newLocation}`))
+        .catch(err => console.error("Override Sync Error:", err));
+};
 
 // --- ARDUINO COMMUNICATION ---
 async function writeToArduino(message) {
