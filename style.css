@@ -126,3 +126,8 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 
 .status-here { color: #1b5e20; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
 .status-out { color: #b71c1c; font-weight: 700; background: #ffebee; padding: 4px 8px; border-radius: 4px; }
+
+#wbox {
+    background-color: white;
+    broder-radius: 8px;
+    }
