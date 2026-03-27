@@ -51,7 +51,18 @@
             <div id="wbox">
                 <h1 id="ManualTitle">Manual Entry</h1>
                 <h3 id="manualSubTitle">Enter a students name or id manually</h3>
-                <input type="text" id="manualStudentEntry">
+                <input placeholder="Name" type="text" id="manualNameInput">
+                <br>
+                <input placeholder="Id" type="number" id="manualIdInput">
+                <br>
+                <select id="manualLocationSelect">
+                    <option selected>Enter</option>
+                    <option>Bathroom</option>
+                    <option>Nurse</option>
+                    <option>Library</option>
+                    <option>Front Office</option>
+                    <option>Counselor</option>
+                </select>
                 <button id="submitManualEntry">Enter</button>
             </div>
         </section>
