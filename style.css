@@ -129,11 +129,17 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 
 #wbox {
     background-color: white;
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 40px;
+    }
+
+    #manualTitle {
+        color:var(--crimson);
+        
     }
 #manualSubTitle {
     color: var(--saffron);
+    text-align: center;
 }
 #manualNameInput, #manualIdInput, #manualLocationSelector {
     color: var(--saffron);
