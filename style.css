@@ -136,6 +136,12 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     width: 100%;
     }
 
+#manualTitleSymbol {
+    color:white;
+    background-color: var(--crimson);
+    border-radius: 5px;
+}
+
 #manualTitle {
     color:var(--crimson);
     font-size: 50px;
