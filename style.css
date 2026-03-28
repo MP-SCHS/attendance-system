@@ -146,6 +146,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     color:var(--crimson);
     font-size: 50px;
     text-align: center;
+    font-weight: bold;
 }
 #manualSubTitle {
     color: var(--saffron);
