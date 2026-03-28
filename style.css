@@ -171,7 +171,12 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     }
 }
 #manualLocationSelector {
-
+    height: 50px;
+    width: 200px;
+    border-radius: 30px;
+    border: var(--saffron);
+    text-align: center;
+    background-color: var(--dark);
 }
 
 .table-select {
