@@ -1,4 +1,4 @@
-const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxFl4M2pyzkhUvrLex691-3fZ4yeb6_11BUTAKGLYX8-UgSWhLkDl-vDTe7ExncgX3-/exec";
+const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbysIc1anX3IZzHbCqeFTz4Nc3-VbVne617GghS4pOuex2gLt1FmMNLH1kgvyDGQ0V0T/exec";
 
 // Global Variables
 let attendanceTracker = {};
