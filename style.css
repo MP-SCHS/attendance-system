@@ -174,17 +174,22 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     height: 50px;
     width: 200px;
     border-radius: 30px;
-    border: var(--saffron);
+    border: var(--saffron), solid;
     text-align: center;
     background-color: var(--dark);
+    color: var(--crimson);
+    margin-left: 50px;
+    margin-top: 10px;
+
 }
 #submitManualEntry {
     height: 50px;
     width: 100px;
     border-radius: 30px;
-    border: var(--saffron);
+    border: var(--saffron), solid;
     text-align: center;
     background-color: var(--dark);
+    color: var(--crimson);
 }
 
 .table-select {
