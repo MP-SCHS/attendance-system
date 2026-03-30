@@ -193,6 +193,9 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     background-color: var(--dark);
     color: var(--crimson);
 }
+#submitManualEntry:hover {
+    color: var(--saffron);
+}
 
 .table-select {
     padding: 5px;
