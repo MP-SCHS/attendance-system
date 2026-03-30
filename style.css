@@ -172,6 +172,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 }
 #manualLocationSelect {
     height: 50px;
+    font-size: 30px;
     width: 200px;
     border-radius: 30px;
     border: var(--saffron), solid;
@@ -185,6 +186,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 #submitManualEntry {
     height: 50px;
     width: 100px;
+    font-size: 30px;
     border-radius: 30px;
     border: var(--saffron), solid;
     text-align: center;
