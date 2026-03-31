@@ -186,7 +186,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 #submitManualEntry {
     height: 50px;
     width: 100px;
-    font-size: 30px;
+    font-size: 25px;
     border-radius: 30px;
     border: var(--saffron), solid;
     text-align: center;
