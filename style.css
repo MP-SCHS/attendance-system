@@ -1,7 +1,9 @@
+/* Palette Variables */
 :root {
     --crimson: #8C001A;
     --scarlet: #DE383E;
     --saffron: #F0BC00;
+    --gold: #FFCA3A;
     --black: #080708;
     --white: #FFFFFF;
     --dark: #1f1f1f;
@@ -10,28 +12,34 @@
 body { 
     font-family: 'Roboto', sans-serif; 
     background-color: var(--black); 
-    margin: 0; 
     color: var(--white);
+    margin: 0; 
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Tabs */
+/* Navigation Bar */
 .tabs {
     display: flex;
     justify-content: center;
-    padding: 20px;
     background: var(--black);
+    padding: 20px 0;
     border-bottom: 3px solid var(--crimson);
-    gap: 10px;
+    gap: 15px;
 }
 
 .tab-btn {
-    background: none;
+    background: transparent;
     border: 2px solid var(--saffron);
     color: var(--saffron);
-    padding: 10px 20px;
+    padding: 10px 25px;
+    font-weight: 700;
+    text-transform: uppercase;
     cursor: pointer;
-    font-weight: bold;
-    border-radius: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    width: auto;
 }
 
 .tab-btn.active {
@@ -39,69 +47,233 @@ body {
     color: var(--black);
 }
 
-/* Container & Centering */
+.tab-btn:hover {
+    background: var(--gold);
+    color: var(--black);
+    border-color: var(--gold);
+}
+
+/* Container & Sections */
 .container {
     display: flex;
     justify-content: center;
-    padding: 40px 20px;
+    align-items: center;
+    flex-grow: 1;
+    padding: 20px;
 }
 
-.tab-content { 
-    display: none; 
-    width: 100%;
-    justify-content: center;
-}
+.tab-content { display: none; width: 100%; max-width: 500px; }
+.tab-content.active { display: flex; justify-content: center; }
 
-.tab-content.active { 
-    display: flex; 
-}
-
-/* Card Styling */
+/* The Main Card */
 .card { 
     background: var(--white); 
     padding: 40px; 
     border-radius: 12px; 
-    color: var(--black);
-    text-align: center;
+    text-align: center; 
+    border-bottom: 8px solid var(--crimson); 
     width: 100%;
-    max-width: 450px; /* Standard card width */
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    border-bottom: 8px solid var(--crimson);
+    color: var(--black);
 }
 
-.wide-card { 
-    max-width: 900px; /* Table card width */
+.wide-card { max-width: 700px; }
+
+h1 { 
+    color: var(--crimson); 
+    margin-top: 0; 
+    font-weight: 700; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Form Elements (Manual & Login) */
-input, select {
+/* Connect Button */
+#connectBtn { 
+    background: var(--crimson); 
+    color: var(--white); 
+    padding: 15px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 6px;
+    margin: 20px 0;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 4px var(--black);
+}
+
+#connectBtn:active { transform: translateY(2px); box-shadow: 0 2px var(--black); }
+
+/* Scan Display */
+.display-box {
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.label { font-size: 0.8em; color: #666; text-transform: uppercase; margin: 0; }
+
+#lastID { 
+    font-size: 2em; 
+    font-weight: 700; 
+    color: var(--crimson);
+}
+
+/* Table Styles */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th { background: var(--crimson); color: var(--white); padding: 12px; text-align: left; }
+td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
+
+.status-here { color: #1b5e20; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
+.status-out { color: #b71c1c; font-weight: 700; background: #ffebee; padding: 4px 8px; border-radius: 4px; }
+
+#wbox {
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    height: 300px;
+    width: 100%;
+    }
+
+#manualTitleSymbol {
+    color:white;
+    background-color: var(--crimson);
+    border-radius: 5px;
+}
+
+#manualTitle {
+    color:var(--crimson);
+    font-size: 50px;
+    text-align: center;
+    font-weight: bold;
+}
+#manualSubTitle {
+    color: var(--saffron);
+    text-align: center;
+    font-size: 23px;
+}
+#manualNameInput {margin-bottom: 10px;}
+#manualNameInput, #manualIdInput {
+    color: var(--crimson);
+    height: 50px;
+    width: 300px;
+    text-align: center;
+    background-color: var(--dark);
+    accent-color: black;
+    border-radius: 30px;
+    font-size: 30px;
+    margin-left: 50px;
+    border: var(--saffron) solid;
+    ::placeholder {
+        color: var(--saffron);
+        font-size: 30px;
+    }
+}
+#manualLocationSelect {
+    height: 50px;
+    font-size: 30px;
+    width: 200px;
+    border-radius: 30px;
+    border: var(--saffron), solid;
+    text-align: center;
+    background-color: var(--dark);
+    color: var(--crimson);
+    margin-left: 50px;
+    margin-top: 10px;
+
+}
+#submitManualEntry {
+    height: 50px;
+    width: 100px;
+    font-size: 30px;
+    border-radius: 30px;
+    border: var(--saffron), solid;
+    text-align: center;
+    background-color: var(--dark);
+    color: var(--crimson);
+}
+#submitManualEntry:hover {
+    color: var(--saffron);
+}
+
+.table-select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* These classes will color the dropdown itself based on the status */
+.table-select.status-here {
+    background-color: #e8f5e9; /* Light green */
+    color: #2e7d32;
+}
+
+.table-select.status-out {
+    background-color: #ffebee; /* Light red */
+    color: #c62828;
+}
+
+/* --- GLOBAL TAB SPECIFIC FIXES --- */
+
+/* 1. Force the Global section to follow the same hide/show rules as other tabs */
+#global.tab-content {
+    display: none !important; 
+    width: 100%;
+}
+
+#global.tab-content.active {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center; /* Centers the card horizontally */
+    justify-content: flex-start;
+}
+
+/* 2. Style the Global Card and ensure it is centered */
+#global .wide-card {
+    max-width: 900px;
+    width: 95%;
+    margin: 20px auto !important; /* Forces it to the middle of the screen */
+}
+
+/* 3. Center the Login Overlay elements */
+#loginOverlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    gap: 15px;
+    width: 100%;
+}
+
+/* 4. Style the Login inputs to match your theme and center them */
+#facultyPass {
     display: block;
-    width: 80%;
-    margin: 15px auto;
+    margin: 0 auto;
     padding: 12px;
+    width: 250px;
+    text-align: center;
     border-radius: 25px;
     border: 2px solid var(--crimson);
-    text-align: center;
-    font-size: 16px;
 }
 
-#submitManualEntry, #loginBtn, #connectBtn {
-    background: var(--crimson);
+#loginBtn {
+    display: block;
+    margin: 0 auto;
+    padding: 12px 30px;
+    background-color: var(--crimson);
     color: white;
     border: none;
-    padding: 12px 30px;
     border-radius: 25px;
-    cursor: pointer;
     font-weight: bold;
+    cursor: pointer;
     text-transform: uppercase;
 }
 
-/* Tables */
-.table-container { width: 100%; overflow-x: auto; margin-top: 20px; }
-table { width: 100%; border-collapse: collapse; }
-th { background: var(--crimson); color: white; padding: 12px; }
-td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
-
-/* Scan Display */
-.display-box { background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px 0; }
-#lastID { font-size: 2.5em; font-weight: bold; color: var(--crimson); }
+#loginBtn:hover {
+    background-color: var(--scarlet);
+}
