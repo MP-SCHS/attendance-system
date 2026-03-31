@@ -172,7 +172,7 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 }
 #manualLocationSelect {
     height: 50px;
-    font-size: 30px;
+    font-size: 20px;
     width: 200px;
     border-radius: 30px;
     border: var(--saffron), solid;
