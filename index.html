@@ -12,6 +12,7 @@
         <button class="tab-btn active" onclick="showTab(event, 'log')">Log Attendance</button>
         <button class="tab-btn" onclick="showTab(event, 'status-tab')">Student Status</button>
         <button class="tab-btn" onclick="showTab(event, 'manual')">Manual Entry</button>
+        <button class="tab-btn" onclick="showTab(event, 'global')">Global List</button>
     </nav>
 
     <div class="container">
@@ -73,6 +74,35 @@
             </div>
         </section>
     </div>
+    <section id="global" class="tab-content">
+    <div class="card wide-card">
+        <h1>Global Campus Overview</h1>
+
+        <div id="loginOverlay">
+            <p>Please enter the Faculty Access Code to view the live campus list.</p>
+            <input type="password" id="facultyPass" placeholder="Access Code">
+            <button id="loginBtn">Unlock Global List</button>
+        </div>
+
+        <div id="globalContent" style="display: none;">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>ID</th>
+                            <th>Current Location</th>
+                            <th>Last Sync</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalStatusBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
 </html>

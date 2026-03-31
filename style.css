@@ -216,3 +216,30 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     background-color: #ffebee; /* Light red */
     color: #c62828;
 }
+
+#loginOverlay {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+#loginOverlay input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    width: 200px;
+}
+
+#loginBtn {
+    padding: 10px 20px;
+    background-color: #424242;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#loginBtn:hover {
+    background-color: #212121;
+}
