@@ -269,3 +269,28 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 #loginBtn:hover {
     background-color: #212121;
 }
+/* Target the specific section for Global */
+#global {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Centers horizontally */
+    justify-content: flex-start; /* Keeps it near the top, or use 'center' for middle of screen */
+    min-height: 80vh;       /* Gives it enough height to actually look centered */
+    padding-top: 50px;      /* Adds some breathing room from the tabs */
+}
+
+/* Ensure the card inside doesn't stretch to the full width */
+#global .wide-card {
+    width: 90%;             /* Responsive width */
+    max-width: 1000px;      /* Keeps it from getting too huge on big monitors */
+    margin: 0 auto;         /* Backup centering */
+}
+
+/* Center the login overlay specifically */
+#loginOverlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
