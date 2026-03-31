@@ -270,27 +270,93 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
     background-color: #212121;
 }
 /* Target the specific section for Global */
-#global {
-    display: flex;
+/* --- TAB SYSTEM FIX --- */
+
+/* This ensures ALL tabs (including global) stay hidden until clicked */
+.tab-content { 
+    display: none; 
+    width: 100%; 
+}
+
+/* This handles the layout ONLY when the tab is active */
+.tab-content.active { 
+    display: flex; 
     flex-direction: column;
-    align-items: center;    /* Centers horizontally */
-    justify-content: flex-start; /* Keeps it near the top, or use 'center' for middle of screen */
-    min-height: 80vh;       /* Gives it enough height to actually look centered */
-    padding-top: 50px;      /* Adds some breathing room from the tabs */
+    align-items: center; 
+    justify-content: flex-start;
+    width: 100%;
 }
 
-/* Ensure the card inside doesn't stretch to the full width */
+/* --- GLOBAL TAB SPECIFIC --- */
+
+#global.active {
+    min-height: 80vh;
+    padding-top: 50px;
+}
+
 #global .wide-card {
-    width: 90%;             /* Responsive width */
-    max-width: 1000px;      /* Keeps it from getting too huge on big monitors */
-    margin: 0 auto;         /* Backup centering */
+    width: 95%;
+    max-width: 1000px;
+    margin: 0 auto; /* Pure horizontal centering */
 }
 
-/* Center the login overlay specifically */
+/* --- LOGIN OVERLAY STYLES --- */
+
 #loginOverlay {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 15px;
+}
+
+#loginOverlay input {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid var(--saffron);
+    background: var(--dark);
+    color: var(--white);
+    border-radius: 30px;
+    width: 250px;
+    text-align: center;
+}
+
+#loginBtn {
+    padding: 12px 30px;
+    background-color: var(--crimson);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+#loginBtn:hover {
+    background-color: var(--scarlet);
+    transform: scale(1.05);
+}
+
+/* --- MANUAL ENTRY ALIGNMENT FIX --- */
+
+#wbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* This centers the inputs inside the manual box */
+    justify-content: center;
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Removed the 'margin-left: 50px' that was pushing your inputs off-center */
+#manualNameInput, #manualIdInput, #manualLocationSelect {
+    margin-left: 0 !important; 
+    margin-bottom: 15px;
 }
