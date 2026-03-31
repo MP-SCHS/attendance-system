@@ -1,4 +1,4 @@
-/* Palette Variables */
+/* --- 1. Variables & Base --- */
 :root {
     --crimson: #8C001A;
     --scarlet: #DE383E;
@@ -19,7 +19,7 @@ body {
     min-height: 100vh;
 }
 
-/* Navigation Bar */
+/* --- 2. Navigation --- */
 .tabs {
     display: flex;
     justify-content: center;
@@ -39,7 +39,6 @@ body {
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.3s ease;
-    width: auto;
 }
 
 .tab-btn.active {
@@ -53,19 +52,30 @@ body {
     border-color: var(--gold);
 }
 
-/* Container & Sections */
+/* --- 3. Tab Logic (The Fix) --- */
 .container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Changed from center to prevent jumping */
     flex-grow: 1;
-    padding: 20px;
+    padding: 40px 20px;
 }
 
-.tab-content { display: none; width: 100%; max-width: 500px; }
-.tab-content.active { display: flex; justify-content: center; }
+/* Hide everything by default using !important to override ID selectors */
+.tab-content { 
+    display: none !important; 
+    width: 100%; 
+}
 
-/* The Main Card */
+/* Only show the active tab */
+.tab-content.active { 
+    display: flex !important; 
+    flex-direction: column;
+    align-items: center; 
+    width: 100%;
+}
+
+/* --- 4. Cards & UI Elements --- */
 .card { 
     background: var(--white); 
     padding: 40px; 
@@ -73,290 +83,115 @@ body {
     text-align: center; 
     border-bottom: 8px solid var(--crimson); 
     width: 100%;
+    max-width: 500px; /* Default card width */
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     color: var(--black);
 }
 
-.wide-card { max-width: 700px; }
+.wide-card { 
+    max-width: 1000px; /* Global List width */
+}
 
 h1 { 
     color: var(--crimson); 
-    margin-top: 0; 
+    margin-bottom: 20px;
     font-weight: 700; 
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-/* Connect Button */
-#connectBtn { 
-    background: var(--crimson); 
-    color: var(--white); 
-    padding: 15px;
-    font-size: 1.1em;
-    border: none;
-    border-radius: 6px;
-    margin: 20px 0;
-    width: 100%;
-    cursor: pointer;
-    box-shadow: 0 4px var(--black);
-}
-
-#connectBtn:active { transform: translateY(2px); box-shadow: 0 2px var(--black); }
-
-/* Scan Display */
-.display-box {
-    background: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.label { font-size: 0.8em; color: #666; text-transform: uppercase; margin: 0; }
-
-#lastID { 
-    font-size: 2em; 
-    font-weight: 700; 
-    color: var(--crimson);
-}
-
-/* Table Styles */
-.table-container { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th { background: var(--crimson); color: var(--white); padding: 12px; text-align: left; }
-td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
-
-.status-here { color: #1b5e20; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
-.status-out { color: #b71c1c; font-weight: 700; background: #ffebee; padding: 4px 8px; border-radius: 4px; }
-
-#wbox {
-    background-color: white;
-    border-radius: 12px;
-    padding: 40px;
-    height: 300px;
-    width: 100%;
-    }
-
-#manualTitleSymbol {
-    color:white;
-    background-color: var(--crimson);
-    border-radius: 5px;
-}
-
+/* --- 5. Manual Entry Fixes --- */
 #manualTitle {
-    color:var(--crimson);
-    font-size: 50px;
-    text-align: center;
-    font-weight: bold;
+    font-size: 40px;
+    margin-bottom: 5px;
 }
+
 #manualSubTitle {
-    color: var(--saffron);
-    text-align: center;
-    font-size: 23px;
-}
-#manualNameInput {margin-bottom: 10px;}
-#manualNameInput, #manualIdInput {
-    color: var(--crimson);
-    height: 50px;
-    width: 300px;
-    text-align: center;
-    background-color: var(--dark);
-    accent-color: black;
-    border-radius: 30px;
-    font-size: 30px;
-    margin-left: 50px;
-    border: var(--saffron) solid;
-    ::placeholder {
-        color: var(--saffron);
-        font-size: 30px;
-    }
-}
-#manualLocationSelect {
-    height: 50px;
-    font-size: 30px;
-    width: 200px;
-    border-radius: 30px;
-    border: var(--saffron), solid;
-    text-align: center;
-    background-color: var(--dark);
-    color: var(--crimson);
-    margin-left: 50px;
-    margin-top: 10px;
-
-}
-#submitManualEntry {
-    height: 50px;
-    width: 100px;
-    font-size: 30px;
-    border-radius: 30px;
-    border: var(--saffron), solid;
-    text-align: center;
-    background-color: var(--dark);
-    color: var(--crimson);
-}
-#submitManualEntry:hover {
-    color: var(--saffron);
+    color: var(--scarlet);
+    margin-bottom: 25px;
+    font-size: 18px;
 }
 
-.table-select {
-    padding: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    font-family: 'Roboto', sans-serif;
-    cursor: pointer;
+/* Removed margin-left: 50px to ensure perfect centering */
+#manualNameInput, #manualIdInput, #manualLocationSelect, #submitManualEntry {
+    display: block;
+    margin: 10px auto !important; 
+    height: 50px;
     width: 100%;
-}
-
-/* These classes will color the dropdown itself based on the status */
-.table-select.status-here {
-    background-color: #e8f5e9; /* Light green */
-    color: #2e7d32;
-}
-
-.table-select.status-out {
-    background-color: #ffebee; /* Light red */
-    color: #c62828;
-}
-/* Target the specific section for Global */
-#global {
-    display: flex;
-    flex-direction: column;
-    align-items: center;    /* Centers horizontally */
-    justify-content: flex-start; /* Keeps it near the top, or use 'center' for middle of screen */
-    min-height: 80vh;       /* Gives it enough height to actually look centered */
-    padding-top: 50px;      /* Adds some breathing room from the tabs */
-}
-
-
-/* Ensure the card inside doesn't stretch to the full width */
-#global .wide-card {
-    width: 90%;             /* Responsive width */
-    max-width: 1000px;      /* Keeps it from getting too huge on big monitors */
-    margin: 0 auto;         /* Backup centering */
-}
-
-/* Center the login overlay specifically */
-#loginOverlay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
-
-#loginOverlay {
+    max-width: 350px;
     text-align: center;
-    padding: 40px 20px;
+    border-radius: 30px;
+    font-size: 20px;
 }
 
-#loginOverlay input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-right: 10px;
-    width: 200px;
+#manualNameInput, #manualIdInput, #manualLocationSelect {
+    background-color: var(--dark);
+    color: var(--white);
+    border: 2px solid var(--saffron);
 }
 
-#loginBtn {
-    padding: 10px 20px;
-    background-color: #424242;
+#manualNameInput::placeholder, #manualIdInput::placeholder {
+    color: #666;
+}
+
+#submitManualEntry {
+    background-color: var(--crimson);
     color: white;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
 }
 
-#loginBtn:hover {
-    background-color: #212121;
-}
-/* Target the specific section for Global */
-/* --- TAB SYSTEM FIX --- */
-
-/* This ensures ALL tabs (including global) stay hidden until clicked */
-.tab-content { 
-    display: none; 
-    width: 100%; 
+#submitManualEntry:hover {
+    background-color: var(--scarlet);
 }
 
-/* This handles the layout ONLY when the tab is active */
-.tab-content.active { 
-    display: flex; 
-    flex-direction: column;
-    align-items: center; 
-    justify-content: flex-start;
-    width: 100%;
-}
-
-/* --- GLOBAL TAB SPECIFIC --- */
-
-#global.active {
-    min-height: 80vh;
-    padding-top: 50px;
-}
-
-#global .wide-card {
-    width: 95%;
-    max-width: 1000px;
-    margin: 0 auto; /* Pure horizontal centering */
-}
-
-/* --- LOGIN OVERLAY STYLES --- */
-
+/* --- 6. Global List & Login --- */
 #loginOverlay {
+    padding: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px 20px;
     gap: 15px;
 }
 
 #loginOverlay input {
     padding: 12px;
-    font-size: 16px;
-    border: 2px solid var(--saffron);
-    background: var(--dark);
-    color: var(--white);
     border-radius: 30px;
-    width: 250px;
+    border: 2px solid var(--crimson);
     text-align: center;
+    width: 250px;
 }
 
 #loginBtn {
     padding: 12px 30px;
-    background-color: var(--crimson);
+    background: var(--black);
     color: white;
-    border: none;
     border-radius: 30px;
+    border: none;
     cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: 0.3s;
 }
 
-#loginBtn:hover {
-    background-color: var(--scarlet);
-    transform: scale(1.05);
-}
-
-/* --- MANUAL ENTRY ALIGNMENT FIX --- */
-
-#wbox {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* This centers the inputs inside the manual box */
-    justify-content: center;
-    background-color: white;
-    border-radius: 12px;
-    padding: 40px;
+/* --- 7. Tables --- */
+.table-container { 
     width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
+    overflow-x: auto; 
 }
 
-/* Removed the 'margin-left: 50px' that was pushing your inputs off-center */
-#manualNameInput, #manualIdInput, #manualLocationSelect {
-    margin-left: 0 !important; 
-    margin-bottom: 15px;
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+}
+
+th { background: var(--crimson); color: var(--white); padding: 12px; text-align: center; }
+td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); text-align: center; }
+
+.status-here { color: #1b5e20; font-weight: 700; background: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
+.status-out { color: #b71c1c; font-weight: 700; background: #ffebee; padding: 4px 8px; border-radius: 4px; }
+
+.table-select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 100%;
 }
