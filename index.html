@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salpointe Attendance</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="tabs">
@@ -18,14 +18,13 @@
     <div class="container">
         <section id="log" class="tab-content active">
             <div class="card">
-                <h1>Log Class Attendance</h1>
+                <h1>Log Attendance</h1>
                 <button id="connectBtn">CONNECT ARDUINO</button>
-                <p class="connection-status">System: <span id="status">Disconnected</span></p>
+                <p>System: <span id="status">Disconnected</span></p>
                 <div class="display-box">
                     <p class="label">Last Scan</p>
                     <div id="lastID">------</div>
                 </div>
-                <p id="serverMsg"></p>
             </div>
         </section>
 
@@ -33,32 +32,24 @@
             <div class="card wide-card">
                 <h1>Student Status</h1>
                 <div class="table-container">
-                    <table id="statusTable">
+                    <table>
                         <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>ID</th>
-                                <th>State</th>
-                                <th>Remove</th>
-                            </tr>
+                            <tr><th>Student</th><th>ID</th><th>State</th></tr>
                         </thead>
-                        <tbody id="statusBody">
-                            </tbody>
+                        <tbody id="statusBody"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
         <section id="manual" class="tab-content">
-            <div id="wbox">
-                <h1 id="manualTitle"><span id="manualTitleSymbol">></span>Manual Entry</h1>
-                <h3 id="manualSubTitle">Enter a students name or id manually</h3>
+            <div class="card" id="manualCard">
+                <h1 id="manualTitle">Manual Entry</h1>
+                <h3 id="manualSubTitle">Enter student details below</h3>
                 <input placeholder="Name" type="text" id="manualNameInput">
-                <br>
-                <input placeholder="Id" type="number" id="manualIdInput">
-                <br>
+                <input placeholder="ID Number" type="number" id="manualIdInput">
                 <select id="manualLocationSelect">
-                    <option selected disabled>Location</option>
+                    <option selected disabled>Select Location</option>
                     <option>Enter</option>
                     <option>Bathroom</option>
                     <option>Nurse</option>
@@ -70,39 +61,33 @@
                     <option>Learning Lab</option>
                     <option>Testing Center</option>
                 </select>
-                <button id="submitManualEntry">Enter</button>
+                <button id="submitManualEntry">Submit Entry</button>
+            </div>
+        </section>
+
+        <section id="global" class="tab-content">
+            <div class="card wide-card">
+                <h1>Global Campus Overview</h1>
+                <div id="loginOverlay">
+                    <p>Enter Faculty Access Code:</p>
+                    <input type="password" id="facultyPass" placeholder="Access Code">
+                    <button id="loginBtn">Unlock List</button>
+                </div>
+                <div id="globalContent" style="display: none;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Student</th><th>ID</th><th>Location</th><th>Last Sync</th></tr>
+                            </thead>
+                            <tbody id="globalStatusBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
-    <section id="global" class="tab-content">
-    <div class="card wide-card">
-        <h1>Global Campus Overview</h1>
 
-        <div id="loginOverlay">
-            <p>Please enter the Faculty Access Code to view the live campus list.</p>
-            <input type="password" id="facultyPass" placeholder="Access Code">
-            <button id="loginBtn">Unlock Global List</button>
-        </div>
-
-        <div id="globalContent" style="display: none;">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>ID</th>
-                            <th>Current Location</th>
-                            <th>Last Sync</th>
-                        </tr>
-                    </thead>
-                    <tbody id="globalStatusBody">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</section>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
 </html>
