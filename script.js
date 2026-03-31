@@ -1,5 +1,5 @@
 // --- 1. CONFIGURATION ---
-const SUPABASE_URL = "https://your-project-id.supabase.co"; // REPLACE WITH YOUR ACTUAL URL
+const SUPABASE_URL = "https://boaosspeeplhersbqqqm.supabase.co"; // REPLACE WITH YOUR ACTUAL URL
 const SUPABASE_KEY = "sb_publishable_O1K4-KqcwdE4w_Fr3GmKxQ_PR-4w26o";
 const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzFl4M2pyzkhUvrLex691-3fZ4yeb6_11BUTAKGLYX8-UgSWhLkDl-vDTe7ExncgX3-/exec";
 
