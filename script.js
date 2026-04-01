@@ -103,7 +103,7 @@ function updateLocalStatusTable() {
             <td>${data.name}</td>
             <td>${id}</td>
             <td><span class="${stateClass}">${data.location}</span></td>
-            <td><button onclick="deleteLocal('${id}')">Remove</button></td>
+            <td><button class="removeBtn" onclick="deleteLocal('${id}')">Remove</button></td>
         </tr>`;
     }
 }

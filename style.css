@@ -277,3 +277,16 @@ td { padding: 12px; border-bottom: 1px solid #eee; color: var(--black); }
 #loginBtn:hover {
     background-color: var(--scarlet);
 }
+
+.removeBtn {
+    font-size: 15px;
+    font-weight: 700px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--saffron);
+    background-color: var(--dark);
+}
+.removeBtn:hover {
+    color: var(--scarlet);
+    background-color: var(--crimson);
+}
