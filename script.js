@@ -80,24 +80,37 @@ async function syncToSupabase(id, name, location, isOut) {
 
 // --- 5. THE SCAN HANDLER ---
 async function handleScan(scannedName, scannedID, strMode, isOut) {
-    // 1. Update LOCAL UI
+    console.log(`Attempting to process scan for: ${scannedName}`);
+
+    // 1. Update UI & Database
     localScans[scannedID] = { name: scannedName, location: strMode, is_out: isOut };
     lastIDSpn.innerText = scannedName;
     updateLocalStatusTable();
-    
-    // 2. Update SUPABASE
     syncToSupabase(scannedID, scannedName, strMode, isOut);
 
-    // 3. Backup to Google
-    fetch(`${GOOGLE_URL}?id=${scannedID}&name=${scannedName}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
+    // 2. The "K" Handshake
+    console.log("Checking port status for K signal...");
+    
+    if (!port) {
+        console.error("K-Signal Failed: 'port' variable is undefined. Is the Arduino connected?");
+        return;
+    }
 
-    // --- 4. SEND "K" SIGNAL BACK TO ARDUINO ---
-    if (port && port.writable) {
-        const encoder = new TextEncoder();
-        const writer = port.writable.getWriter();
-        await writer.write(encoder.encode("K\n")); // The newline \n is important!
-        writer.releaseLock(); // Crucial: You must release the lock so the next scan can use it
-        console.log("Sent 'K' to Arduino");
+    if (port.writable) {
+        try {
+            const encoder = new TextEncoder();
+            const writer = port.writable.getWriter();
+            
+            console.log("Sending 'K' to Arduino now...");
+            await writer.write(encoder.encode("K\n"));
+            
+            writer.releaseLock();
+            console.log("K-Signal successful, lock released.");
+        } catch (writeErr) {
+            console.error("Error writing to Serial:", writeErr);
+        }
+    } else {
+        console.warn("K-Signal Failed: Port is not writable. It might be locked by another process.");
     }
 }
 
@@ -174,57 +187,70 @@ document.getElementById('submitManualEntry').addEventListener('click', () => {
 
 // --- 8. ARDUINO SERIAL ---
 // --- 8. ARDUINO SERIAL CONNECTION (STREAM ALIGNED) ---
+// --- 8. ARDUINO SERIAL CONNECTION (STREAM ALIGNED) ---
+
+// 1. Declare port globally at the top of this section (or at the very top of your file)
+// let port; <--- Make sure this isn't repeated if you have it at the top of your script
+
 document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-        const port = await navigator.serial.requestPort();
+        // Request the port and assign it to the GLOBAL 'port' variable
+        port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         
         document.getElementById('status').innerText = "Connected";
         document.getElementById('status').style.color = "green";
+        console.log("Serial Port Connected and Globalized:", port);
 
-        // Step 1: Create a decoder to turn bits into text
+        // Setup the Stream Decoder
         const textDecoder = new TextDecoderStream();
         const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-        
-        // Step 2: Create a Line Smoother (Wait for the \n from Arduino)
-        // Note: If 'TextLineStream' isn't supported, we manually buffer
         const reader = textDecoder.readable.getReader();
 
-        let buffer = ""; // This catches the "choppy" data bits
+        let buffer = ""; // Accumulates choppy data until a newline \n arrives
 
         while (true) {
             const { value, done } = await reader.read();
-            if (done) break;
+            if (done) {
+                console.log("Serial stream closed.");
+                reader.releaseLock();
+                break;
+            }
 
             if (value) {
-                buffer += value; // Add new bits to the buffer
+                buffer += value; 
                 
-                // Check if we have a full line (ending in \n)
+                // If we see a newline, we have at least one full message
                 if (buffer.includes("\n")) {
                     const lines = buffer.split("\n");
-                    // Process all complete lines except the last partial one
+                    
+                    // Process all complete lines
                     for (let i = 0; i < lines.length - 1; i++) {
                         const cleanLine = lines[i].trim();
                         if (cleanLine) {
-                            console.log("Full Line Received:", cleanLine);
+                            console.log("Full Message From Arduino:", cleanLine);
                             const parts = cleanLine.split(',');
 
                             if (parts.length === 4) {
+                                // Trigger the scan handler which now sends the "K" back
                                 handleScan(
                                     parts[0], 
                                     parts[1], 
                                     parts[2], 
                                     parts[3].toLowerCase().includes("true")
                                 );
+                            } else {
+                                console.warn("Incomplete data received:", cleanLine);
                             }
                         }
                     }
-                    // Keep the leftover partial line in the buffer
+                    // Keep any partial data for the next read
                     buffer = lines[lines.length - 1];
                 }
             }
         }
     } catch (err) {
-        console.error("Serial Error:", err);
+        console.error("Serial Connection Error:", err);
+        alert("Connection Failed: Make sure no other program (like Arduino IDE) is using the port.");
     }
 });
