@@ -80,16 +80,25 @@ async function syncToSupabase(id, name, location, isOut) {
 
 // --- 5. THE SCAN HANDLER ---
 async function handleScan(scannedName, scannedID, strMode, isOut) {
-    // 1. Update LOCAL list (Immediate feedback for current user)
+    // 1. Update LOCAL UI
     localScans[scannedID] = { name: scannedName, location: strMode, is_out: isOut };
     lastIDSpn.innerText = scannedName;
     updateLocalStatusTable();
     
-    // 2. Update SUPABASE (This will trigger the Realtime listener for EVERYONE)
+    // 2. Update SUPABASE
     syncToSupabase(scannedID, scannedName, strMode, isOut);
 
     // 3. Backup to Google
     fetch(`${GOOGLE_URL}?id=${scannedID}&name=${scannedName}&mode=${strMode}&isOut=${isOut}`, { mode: 'no-cors' });
+
+    // --- 4. SEND "K" SIGNAL BACK TO ARDUINO ---
+    if (port && port.writable) {
+        const encoder = new TextEncoder();
+        const writer = port.writable.getWriter();
+        await writer.write(encoder.encode("K\n")); // The newline \n is important!
+        writer.releaseLock(); // Crucial: You must release the lock so the next scan can use it
+        console.log("Sent 'K' to Arduino");
+    }
 }
 
 // --- 6. TABLE RENDERING ---
