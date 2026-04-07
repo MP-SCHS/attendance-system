@@ -164,24 +164,58 @@ document.getElementById('submitManualEntry').addEventListener('click', () => {
 });
 
 // --- 8. ARDUINO SERIAL ---
+// --- 8. ARDUINO SERIAL CONNECTION (STREAM ALIGNED) ---
 document.getElementById('connectBtn').addEventListener('click', async () => {
     try {
-        port = await navigator.serial.requestPort();
+        const port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
-        document.getElementById('status').innerText = "Connected";
         
-        const decoder = new TextDecoderStream();
-        port.readable.pipeTo(decoder.writable);
-        const reader = decoder.readable.getReader();
+        document.getElementById('status').innerText = "Connected";
+        document.getElementById('status').style.color = "green";
 
-        while (keepReading) {
-            const { value } = await reader.read();
+        // Step 1: Create a decoder to turn bits into text
+        const textDecoder = new TextDecoderStream();
+        const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+        
+        // Step 2: Create a Line Smoother (Wait for the \n from Arduino)
+        // Note: If 'TextLineStream' isn't supported, we manually buffer
+        const reader = textDecoder.readable.getReader();
+
+        let buffer = ""; // This catches the "choppy" data bits
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
             if (value) {
-                const parts = value.split(',');
-                if (parts.length === 4) {
-                    handleScan(parts[0], parts[1], parts[2], parts[3].trim() === "true");
+                buffer += value; // Add new bits to the buffer
+                
+                // Check if we have a full line (ending in \n)
+                if (buffer.includes("\n")) {
+                    const lines = buffer.split("\n");
+                    // Process all complete lines except the last partial one
+                    for (let i = 0; i < lines.length - 1; i++) {
+                        const cleanLine = lines[i].trim();
+                        if (cleanLine) {
+                            console.log("Full Line Received:", cleanLine);
+                            const parts = cleanLine.split(',');
+
+                            if (parts.length === 4) {
+                                handleScan(
+                                    parts[0], 
+                                    parts[1], 
+                                    parts[2], 
+                                    parts[3].toLowerCase().includes("true")
+                                );
+                            }
+                        }
+                    }
+                    // Keep the leftover partial line in the buffer
+                    buffer = lines[lines.length - 1];
                 }
             }
         }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error("Serial Error:", err);
+    }
 });
