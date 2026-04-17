@@ -136,7 +136,7 @@ function renderGlobalTable() {
     
     // Iterate through globalScans (Database data)
     for (const [id, data] of Object.entries(globalScans)) {
-        const time = data.last_updated ? new Date(data.last_updated).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "---";
+        const time = data.updated_at ? new Date(data.updated_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "---";
         const stateClass = data.is_out ? 'status-out' : 'status-here';
         
         globalStatusBody.innerHTML += `<tr>
