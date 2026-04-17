@@ -73,7 +73,7 @@ async function syncToSupabase(id, name, location, isOut) {
         name: name, 
         location: location, 
         is_out: isOut,
-        last_updated: new Date().toISOString() 
+        //last_updated: new Date().toISOString() 
     });
     if (error) console.error("Sync Error:", error);
 }
